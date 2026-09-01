@@ -79,17 +79,18 @@
   <ul id="book-list"></ul>
 </div>
 
-<script>
-  // Google Form 串接設定
-  const FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSfOb7RCIM1mU_iJ_g9udJY3UzQgYe7d_xLCQe-ruAkF17Sm9g/formResponse';
-  const FIELD_DATE = 'entry.929311661';
-  const FIELD_NAME = 'entry.2077283458';
-  const FIELD_AMOUNT = 'entry.1044855212';
+<!-- 隱藏式背景送出容器 -->
+<iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
+<form id="gform" action="https://docs.google.com/forms/d/e/1FAIpQLSfOb7RCIM1mU_iJ_g9udJY3UzQgYe7d_xLCQe-ruAkF17Sm9g/formResponse" method="POST" target="hidden_iframe" style="display:none;">
+  <input type="text" name="entry.929311661" id="g_date">
+  <input type="text" name="entry.2077283458" id="g_name">
+  <input type="text" name="entry.1044855212" id="g_amount">
+</form>
 
+<script>
   let expenses = JSON.parse(localStorage.getItem('app_expenses')) || [];
   let books = JSON.parse(localStorage.getItem('app_books')) || [];
 
-  // 自動預設今天日期
   document.getElementById('exp-date').valueAsDate = new Date();
 
   function switchTab(tab) {
@@ -105,19 +106,10 @@
   }
 
   function sendToGoogleForm(date, name, amount) {
-    const params = new URLSearchParams();
-    params.append(FIELD_DATE, date);
-    params.append(FIELD_NAME, name);
-    params.append(FIELD_AMOUNT, amount);
-
-    fetch(FORM_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      },
-      body: params
-    }).catch(err => console.error('Google Form 背景上傳失敗:', err));
+    document.getElementById('g_date').value = date;
+    document.getElementById('g_name').value = name;
+    document.getElementById('g_amount').value = amount;
+    document.getElementById('gform').submit();
   }
 
   function renderExpenses() {
