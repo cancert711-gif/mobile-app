@@ -19,10 +19,10 @@
     .stat-box { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 12px; text-align: center; color: #1e40af; font-size: 1.1rem; font-weight: bold; margin-bottom: 12px; }
     .form-group { margin-bottom: 10px; }
     input, select { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; background: #fff; margin-top: 4px; }
-    button.submit-btn { width: 100%; padding: 12px; background: #2563eb; color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; margin-top: 6px; }
+    button.submit-btn { width: 100%; padding: 12px; background: #2563eb; color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; margin-top: 6px; cursor: pointer; }
     ul { list-style: none; padding: 0; margin: 0; }
     li { background: white; border-radius: 8px; padding: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; }
-    .del-btn { background: #ef4444; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; }
+    .del-btn { background: #ef4444; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; cursor: pointer; }
     .badge-status { padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; }
     .status-reading { background: #fef3c7; color: #d97706; }
     .status-done { background: #dcfce7; color: #15803d; }
@@ -71,6 +71,12 @@
 </div>
 
 <script>
+  // Google Form 串接設定
+  const FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSfOb7RCIM1mU_iJ_g9udJY3UzQgYe7d_xLCQe-ruAkF17Sm9g/formResponse';
+  const FIELD_DATE = 'entry.929311661';
+  const FIELD_NAME = 'entry.2077283458';
+  const FIELD_AMOUNT = 'entry.1044855212';
+
   let expenses = JSON.parse(localStorage.getItem('app_expenses')) || [];
   let books = JSON.parse(localStorage.getItem('app_books')) || [];
 
@@ -84,6 +90,20 @@
       document.querySelectorAll('.tab-btn')[1].classList.add('active');
       document.getElementById('books').classList.add('active');
     }
+  }
+
+  function sendToGoogleForm(name, amount) {
+    const today = new Date().toISOString().split('T')[0];
+    const formData = new FormData();
+    formData.append(FIELD_DATE, today);
+    formData.append(FIELD_NAME, name);
+    formData.append(FIELD_AMOUNT, amount);
+
+    fetch(FORM_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      body: formData
+    }).catch(err => console.error('Google Form 背景上傳失敗:', err));
   }
 
   function renderExpenses() {
@@ -107,7 +127,10 @@
     const name = document.getElementById('exp-name').value.trim();
     const amount = Number(document.getElementById('exp-amount').value);
     if (!name || !amount) return alert('請完整填寫品項與金額');
+
     expenses.push({ name, amount });
+    sendToGoogleForm(name, amount);
+
     document.getElementById('exp-name').value = '';
     document.getElementById('exp-amount').value = '';
     renderExpenses();
@@ -136,7 +159,10 @@
     const title = document.getElementById('book-title').value.trim();
     const status = document.getElementById('book-status').value;
     if (!title) return alert('請輸入書名');
+
     books.push({ title, status });
+    sendToGoogleForm(`[書本] ${title}`, status);
+
     document.getElementById('book-title').value = '';
     renderBooks();
   }
