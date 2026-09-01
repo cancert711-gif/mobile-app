@@ -18,6 +18,7 @@
     .card { background: white; border-radius: 12px; padding: 16px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
     .stat-box { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 12px; text-align: center; color: #1e40af; font-size: 1.1rem; font-weight: bold; margin-bottom: 12px; }
     .form-group { margin-bottom: 10px; }
+    label { font-size: 0.85rem; color: #64748b; font-weight: 600; }
     input, select { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; background: #fff; margin-top: 4px; }
     button.submit-btn { width: 100%; padding: 12px; background: #2563eb; color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; margin-top: 6px; cursor: pointer; }
     ul { list-style: none; padding: 0; margin: 0; }
@@ -42,12 +43,15 @@
   <div class="card">
     <div class="stat-box">總支出：$<span id="total-expense">0</span></div>
     <div class="form-group">
+      <label for="exp-date">消費日期</label>
       <input type="date" id="exp-date">
     </div>
     <div class="form-group">
-      <input type="text" id="exp-name" placeholder="項目名稱（如：午餐、購買小說）">
+      <label for="exp-name">項目名稱</label>
+      <input type="text" id="exp-name" placeholder="例如：午餐、購買小說">
     </div>
     <div class="form-group">
+      <label for="exp-amount">金額</label>
       <input type="number" id="exp-amount" placeholder="金額">
     </div>
     <button class="submit-btn" onclick="addExpense()">新增支出</button>
@@ -59,9 +63,11 @@
 <div id="books" class="content">
   <div class="card">
     <div class="form-group">
-      <input type="text" id="book-title" placeholder="書名">
+      <label for="book-title">書名</label>
+      <input type="text" id="book-title" placeholder="請輸入書名">
     </div>
     <div class="form-group">
+      <label for="book-status">閱讀狀態</label>
       <select id="book-status">
         <option value="閱讀中">📖 閱讀中</option>
         <option value="已完讀">✅ 已完讀</option>
@@ -83,7 +89,7 @@
   let expenses = JSON.parse(localStorage.getItem('app_expenses')) || [];
   let books = JSON.parse(localStorage.getItem('app_books')) || [];
 
-  // 初始化日期輸入框為今天
+  // 自動預設今天日期
   document.getElementById('exp-date').valueAsDate = new Date();
 
   function switchTab(tab) {
@@ -122,7 +128,7 @@
       list.innerHTML += `
         <li>
           <div>
-            <strong style="font-size:0.8rem; color:#64748b;">📅 ${displayDate}</strong><br>
+            <span style="font-size:0.75rem; color:#64748b; font-weight:600;">📅 ${displayDate}</span><br>
             <strong>${item.name}</strong><br>
             <small style="color:#2563eb; font-weight:bold;">$${item.amount}</small>
           </div>
@@ -138,13 +144,14 @@
     const name = document.getElementById('exp-name').value.trim();
     const amount = Number(document.getElementById('exp-amount').value);
     
-    if (!date || !name || !amount) return alert('請完整填寫日期、品項與金額');
+    if (!date || !name || !amount) return alert('請完整填寫日期、項目名稱與金額');
 
     expenses.push({ date, name, amount });
     sendToGoogleForm(date, name, amount);
 
     document.getElementById('exp-name').value = '';
     document.getElementById('exp-amount').value = '';
+    document.getElementById('exp-date').valueAsDate = new Date();
     renderExpenses();
   }
 
